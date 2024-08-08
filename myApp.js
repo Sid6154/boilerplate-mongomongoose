@@ -8,7 +8,7 @@ const personSchema = new mongoose.Schema({
 });
 const Person = mongoose.model("Person", personSchema);
 //the part where there could be errors
-const createAndSavePerson = function(done){
+const freeCodeCamp = function(done){
   return new Person({
     name: 'Siddhant',
     age: 18,
