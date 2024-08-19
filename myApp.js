@@ -3,6 +3,7 @@
 
 /** 1) Install & Set up mongoose */
 require('dotenv').config();
+const { response } = require('express');
 const mongoose = require('mongoose');
 
 mongoose.connect(process.env.MONGO_URI, {
@@ -64,40 +65,85 @@ const findPeopleByName = (personName,done)=>{
     done(null, personFound);
   });
 };
+
 const findOneByFood = (food, done) => {
-  done(null /*, data*/);
+  Person.findOne({favoriteFoods: food},(err,data)=>{
+    if (err) return console.log(err);
+    done(null, data);
+  });
 };
 
+
 const findPersonById = (personId, done) => {
-  done(null /*, data*/);
+  Person.findById(personId, (err,personId)=>
+  {
+    if (err) return console.log(err);
+    done(null, personId);
+  });
 };
 
 const findEditThenSave = (personId, done) => {
   const foodToAdd = "hamburger";
-
-  done(null /*, data*/);
+  Person.findById(personId, (err,Person)=>
+    {
+      if (err) return console.log(err);
+      Person.favoriteFoods.push(foodToAdd);
+      Person.save((err, updatePerson) => {
+        if (err) return console.error(err);
+        done(null, updatePerson);
+      })
+    })
+    
 };
 
 const findAndUpdate = (personName, done) => {
   const ageToSet = 20;
+  Person.findOneAndUpdate({name: personName}, {age: ageToSet}, {new: true}, (err, updatedDoc) => {
+    if (err) return console.error(err);
+    done(null, updatedDoc);
 
-  done(null /*, data*/);
+  }
+
+  )
 };
 
 const removeById = (personId, done) => {
-  done(null /*, data*/);
+  Person.findByIdAndRemove(personId,(err,removedDoc)=>{
+    if(err) return console.log(err);
+    done(null, removedDoc);
+  }
+  );
 };
 
 const removeManyPeople = (done) => {
   const nameToRemove = "Mary";
-
-  done(null /*, data*/);
+  Person.remove({name:nameToRemove},(err,response)=>{
+    if(err) return console.log(err);
+    done(null, response);
+  })
 };
-
+// const queryChain = (done) => {
+//   const foodToSearch = "burrito";
+//   Person.find({name:foodToSearch});
+//   Person.sort({age: -1});
+//   Person.limit(5);
+//   Person.select({name:1, age:0});
+//   Person.exec((err,people)=
+//    { if (err) return console.log(err);
+//     done(null, people)});
+// };
 const queryChain = (done) => {
+  console.log("queryChain function called");
   const foodToSearch = "burrito";
-
-  done(null /*, data*/);
+  Person.find({ favoriteFoods: foodToSearch })
+    .sort({ name: 1 })
+    .limit(2)
+    .select({ age: 0 })
+    .exec((err, data) => {
+      console.log("Query executed", err, data);
+      if (err) return done(err);
+      done(null, data);
+    });
 };
 
 /** **Well Done !!**
